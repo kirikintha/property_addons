@@ -186,7 +186,7 @@ function property_addons_widget_info() {
   
   return array(
     'property_addons' => array(
-      'label'           => 'Rate Field',
+      'label'           => 'Property Add-On Field',
       'field types'     => array('property_addons'),
       'multiple values' => CONTENT_HANDLE_CORE
     )
