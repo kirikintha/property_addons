@@ -1,0 +1,8 @@
+/**
+ * Node Form CSS
+ */
+div.property-addons-widget .form-item {
+  float:left;
+  margin:0 20px;
+  width:120px !important;
+}

@@ -1,0 +1,287 @@
+<?php
+/**
+ * Property property_addons
+ * Adds a custom CCK widget for property property_addons, and allows for full views integration
+ */
+
+define( "PROPERTY_ADDONS_MODULE_PATH", drupal_get_path( 'module', 'property_addons' ) );
+
+/**
+ * Hook Init
+ */
+function property_addons_init() { //load js calendar listener
+  
+  drupal_add_js( PROPERTY_ADDONS_MODULE_PATH. '/js/functions.propertyAddons.js','module','header' );
+  
+}
+
+/**
+ * Hook Theme
+ */
+function property_addons_theme() {
+	
+	return array (
+    //Module Theme via tpl
+		'rate_display' => array (
+      'path'      => PROPERTY_ADDONS_MODULE_PATH,
+      'template'  => 'theme/rate_display',
+			'arguments' => array( 'property_is_on_promotion'=> NULL, 'promotional_teaser'=> NULL, 'promotional_details'=> NULL, 'property_is_for_sale'=> NULL )
+		),
+    //CCK theme formatters.
+    'property_addons_formatter_default' => array(
+      'arguments' => array( 'element' => NULL )
+    ),
+    'property_addons' => array(
+      'arguments' => array( 'element' => NULL )
+    )
+	);
+	
+}
+
+//==========================================//
+// CONTENT FIELD WIDGET (CCK)
+//==========================================//
+
+/**
+ * Implementation of hook_field_info().
+ */
+function property_addons_field_info() {
+  
+  return array(
+    'property_addons' => array(
+      'label'       => t('Property Add-Ons Field'),
+      'description' => t('Stores a compound field that has the Add On fields for a partiulcar properties additional costs.')
+    )
+  );
+  
+}
+
+/**
+ * Implementation of hook_field_settings().
+ */
+function property_addons_field_settings( $op, $field ) {
+  
+  switch ( $op ) {
+    
+    case 'database columns':
+      return array(
+        'property_is_on_promotion' => array( 'type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'sortable' => FALSE, 'views' => FALSE ),
+        'promotional_teaser'       => array( 'type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'sortable' => FALSE, 'views' => FALSE ),
+        'promotional_details'      => array( 'type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'sortable' => FALSE, 'views' => FALSE ),
+        'property_is_for_sale'     => array( 'type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'sortable' => FALSE, 'views' => FALSE )
+      );
+
+  }
+  
+}
+
+/**
+ * Implementation of hook_content_is_empty().
+ */
+function property_addons_content_is_empty( $item, $field ) {
+  
+  if ( empty( $item['property_is_on_promotion'] ) || empty( $item['property_is_for_sale'] ) ) {
+    
+    return TRUE;
+  
+  }
+  
+  return FALSE;
+
+}
+
+/**
+ * Implementation of hook_field_formatter_info().
+ */
+function property_addons_field_formatter_info() {
+  
+  return array(
+    'default' => array(
+      'label'           => t('Default'),
+      'field types'     => array('property_addons'),
+      'multiple values' => CONTENT_HANDLE_CORE
+    )
+  );
+  
+}
+
+/**
+ * Theme function for 'default' example field formatter.
+ *
+ * $element['#item']: the sanitized $delta value for the item,
+ * $element['#field_name']: the field name,
+ * $element['#type_name']: the $node->type,
+ * $element['#formatter']: the $formatter_name,
+ * $element'#node']: the $node,
+ * $element['#delta']: the delta of this item, like '0',
+ *
+ */
+function theme_property_addons_formatter_default( $element ) {
+  
+  if ( !empty( $element['#item']['property_is_on_promotion'] ) && !empty( $element['#item']['property_is_for_sale'] ) ) { //If we don't have a legitimate rate, then don't do it!
+    
+    return theme( 'property_addons_display',
+                 $element['#item']['property_is_on_promotion'],
+                 $element['#item']['promotional_teaser'],
+                 $element['#item']['promotional_details'],
+                 $element['#item']['property_is_for_sale'] );
+    
+  }
+
+}
+
+/**
+ * FAPI theme for an individual widget from the individual element.
+ */
+function theme_property_addons( $element ) {
+  
+  $output = '<div class="property_addons-widget">';
+  $output .= theme( 'checkbox', $element['property_is_on_promotion'] );
+  $output .= theme( 'textfield', $element['promotional_teaser'] );
+  $output .= theme( 'textarea', $element['promotional_details'] );
+  $output .= theme( 'checkbox', $element['property_is_for_sale'] );
+  $output .= '</div>';
+  
+  return $output;
+
+}
+
+/**
+ * Implementation of FAPI hook_elements().
+ *
+ * Any FAPI callbacks needed for individual widgets can be declared here,
+ * and the element will be passed to those callbacks for processing.
+ *
+ * Drupal will automatically theme the element using a theme with
+ * the same name as the hook_elements key.
+ *
+ * Autocomplete_path is not used by text_widget but other widgets can use it
+ * (see nodereference and userreference).
+ */
+function property_addons_elements() {
+  
+  $elements = array(
+    'property_addons' => array(
+      '#input'   => TRUE,
+      '#process' => array('property_addons_process')
+    )
+  );
+  
+  return $elements;
+
+}
+
+/**
+ * Implementation of hook_widget_info().
+ *
+ * Here we indicate that the content module will handle
+ * the default value and multiple values for these widgets.
+ *
+ * Callbacks can be omitted if default handing is used.
+ * They're included here just so this module can be used
+ * as an example for custom modules that might do things
+ * differently.
+ */
+function property_addons_widget_info() {
+  
+  return array(
+    'property_addons' => array(
+      'label'           => 'Rate Field',
+      'field types'     => array('property_addons'),
+      'multiple values' => CONTENT_HANDLE_CORE
+    )
+  );
+  
+}
+
+/**
+ * Implementation of hook_widget().
+ *
+ * Attach a single form element to the form. It will be built out and
+ * validated in the callback(s) listed in hook_elements. We build it
+ * out in the callbacks rather than here in hook_widget so it can be
+ * plugged into any module that can provide it with valid
+ * $field information.
+ *
+ * Content module will set the weight, field name and delta values
+ * for each form element. This is a change from earlier CCK versions
+ * where the widget managed its own multiple values.
+ *
+ * If there are multiple values for this field, the content module will
+ * call this function as many times as needed.
+ *
+ * @param $form
+ *   the entire form array, $form['#node'] holds node information
+ * @param $form_state
+ *   the form_state, $form_state['values'][$field['field_name']]
+ *   holds the field's form values.
+ * @param $field
+ *   the field array
+ * @param $items
+ *   array of default values for this field
+ * @param $delta
+ *   the order of this item in the array of subelements (0, 1, 2, etc)
+ *
+ * @return
+ *   the form item for a single element for this field
+ */
+function property_addons_widget( &$form, &$form_state, $field, $items, $delta = 0 ) {
+  
+  $element = array(
+    '#type'          => $field['widget']['type'],
+    '#default_value' => isset( $items[$delta] ) ? $items[$delta] : '',
+    '#title'         => $field['widget']['label'],
+    '#field'         => $field,
+  );
+  
+  return $element;
+
+}
+
+/**
+ * Process an individual element.
+ *
+ * Build the form element. When creating a form using FAPI #process,
+ * note that $element['#value'] is already set.
+ *
+ * The $fields array is in $form['#field_info'][$element['#field_name']].
+ */
+function property_addons_process( $element, $edit, $form_state, $form ) {
+  
+  //Form CSS
+  drupal_add_css( PROPERTY_ADDONS_MODULE_PATH . '/css/form.css' );
+  
+  $element['property_is_on_promotion'] = array(
+    '#type'          => 'checkbox',
+    '#title'         => t('This Property is on a promotion.'),
+    '#description'   => t('By checking this box, you are authorizing Maya Blue Riviera to ****LEGAL COPY HERE*****'),
+    '#default_value' => isset( $element['#value']['property_is_on_promotion'] ) ? $element['#value']['property_is_on_promotion'] : NULL,
+    '#attributes'    => array( 'class' => 'property-addons-is-on-promotion' )
+  );
+  
+  $element['promotional_teaser'] = array(
+    '#type'          => 'textfield',
+    '#title'         => t('Promotional Teaser'),
+    '#description'   => t('Please enter the Promotional Details for this property.'),
+    '#default_value' => isset( $element['#value']['promotional_teaser'] ) ? $element['#value']['promotional_teaser'] : NULL,
+    '#attributes'    => array( 'class' => 'property-addons-promotional-teaser' )
+  );
+  
+  $element['promotional_details'] = array(
+    '#type'          => 'textarea',
+    '#title'         => t('Promotional Details'),
+    '#default_value' => isset( $element['#value']['promotional_details'] ) ? $element['#value']['promotional_details'] : NULL,
+    '#attributes'    => array( 'class' => 'property-addons-promotional-details' )
+  );
+  
+  $element['property_for_sale'] = array(
+    '#type'          => 'checkbox',
+    '#title'         => t('This Property is for sale'),
+    '#description'   => t('By checking this box, you are authorizing Maya Blue Riviera to ****LEGAL COPY HERE*****'),
+    '#default_value' => isset( $element['#value']['property_for_sale'] ) ? $element['#value']['property_for_sale'] : NULL,
+    '#attributes'    => array( 'class' => 'property-addons-for-sale' )
+  );
+  
+  return $element;
+
+}
