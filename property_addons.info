@@ -2,5 +2,5 @@ name           = Maya Blue - Property Add Ons
 description    = A set of compund fields that are the chargeable add ons for a particular property.
 version        = 1.0
 dependencies[] = content
-package        = Maya Blue
+package        = BTM Local Module
 core           = 6.x
