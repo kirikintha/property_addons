@@ -4,6 +4,8 @@
  * @param string $promotional_teaser
  * @param string $promotional_teaser
  * @param string $property_is_for_sale
+ * @param string $property_is_featured
+ * @param string $property_is_featured_price_point
  */
 ?>
 <div class="property-addons" >
@@ -13,5 +15,8 @@
   <p class="promotional-details"><?php print $promotional_details; ?></p>
   
   <h4><?php print $property_is_for_sale; ?></h4>
+  
+  <h4><?php print $property_is_featured; ?></h4>
+  <p><?php print $property_is_featured_price_point; ?></p>
 	
 </div>
