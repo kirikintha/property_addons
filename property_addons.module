@@ -13,10 +13,11 @@ function property_addons_init() { //load js calendar listener
   
   drupal_add_js( PROPERTY_ADDONS_MODULE_PATH. '/js/functions.propertyAddons.js','module','header' );
   
+  /**
   error_reporting(E_ALL);
   ini_set('display_errors', TRUE);
   ini_set('display_startup_errors', TRUE);
-
+  */
   
 }
 
