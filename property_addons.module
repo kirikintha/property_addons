@@ -251,7 +251,7 @@ function theme_property_addons_formatter_default( $element ) {
 
 /**
  * FAPI theme for an individual widget from the individual element.
- * Crazy thing is, I can't them out this form in a tpl file.
+ * @internal Crazy thing is, I can't theme out this form in a tpl file.
  */
 function theme_property_addons( $element ) {
   
@@ -386,7 +386,7 @@ function property_addons_process( $element, $edit, $form_state, $form ) {
   //Property Is on Special/Promotion
   $element['property_is_on_promotion'] = array(
     '#type'          => 'checkbox',
-    '#title'         => t('This Property is on a promotion.'),
+    '#title'         => t('Yes, Place This Property On A Promotion.'),
     '#default_value' => isset( $element['#value']['property_is_on_promotion'] ) ? $element['#value']['property_is_on_promotion'] : $element['#field']['widget']['default_value'][0]['property_is_on_promotion'],
     '#attributes'    => array( 'class' => 'property-addons-is-on-promotion' )
   );
@@ -410,7 +410,7 @@ function property_addons_process( $element, $edit, $form_state, $form ) {
   //Property Is For Sale
   $element['property_is_for_sale'] = array(
     '#type'          => 'checkbox',
-    '#title'         => t('This Property is for sale'),
+    '#title'         => t('Yes, List This Property As For Sale'),
     '#default_value' => isset( $element['#value']['property_is_for_sale'] ) ? $element['#value']['property_is_for_sale'] : $element['#field']['widget']['default_value'][0]['property_is_for_sale'],
     '#attributes'    => array( 'class' => 'property-addons-is-for-sale' )
   );
@@ -418,7 +418,7 @@ function property_addons_process( $element, $edit, $form_state, $form ) {
   //Property Is Featured
   $element['property_is_featured'] = array(
     '#type'          => 'checkbox',
-    '#title'         => t('Feature this property on !site_name!', array( '!site_name' => variable_get( 'site_name', NULL ) ) ),
+    '#title'         => t('Feature This Property On !site_name!', array( '!site_name' => ucword ( variable_get( 'site_name', NULL ) ) ) ),
     '#default_value' => isset( $element['#value']['property_is_featured'] ) ? $element['#value']['property_is_featured'] : $element['#field']['widget']['default_value'][0]['property_is_featured'],
     '#attributes'    => array( 'class' => 'property-addons-is-featured' )
   );
@@ -440,7 +440,7 @@ function property_addons_process( $element, $edit, $form_state, $form ) {
   
   $element['property_is_featured_price_point'] = array(
     '#type'          => 'radios',
-    '#title'         => t('Choose which option you would like to featured this property'),
+    '#title'         => t('Choose Which Featured Property Option You Would Like To Use'),
     '#options'       => $options,
     '#default_value' => isset( $element['#value']['property_is_featured_price_point'] ) ? $element['#value']['property_is_featured_price_point'] : $default,
     '#attributes'    => array( 'class' => 'property-addons-is-featured-radios' )
