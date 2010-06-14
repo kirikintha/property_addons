@@ -13,6 +13,11 @@ function property_addons_init() { //load js calendar listener
   
   drupal_add_js( PROPERTY_ADDONS_MODULE_PATH. '/js/functions.propertyAddons.js','module','header' );
   
+  error_reporting(E_ALL);
+  ini_set('display_errors', TRUE);
+  ini_set('display_startup_errors', TRUE);
+
+  
 }
 
 /**
@@ -418,7 +423,7 @@ function property_addons_process( $element, $edit, $form_state, $form ) {
   //Property Is Featured
   $element['property_is_featured'] = array(
     '#type'          => 'checkbox',
-    '#title'         => t('Feature This Property On !site_name!', array( '!site_name' => ucword ( variable_get( 'site_name', NULL ) ) ) ),
+    '#title'         => t('Feature This Property On !site_name!', array( '!site_name' => ucwords( variable_get( 'site_name', NULL ) ) ) ),
     '#default_value' => isset( $element['#value']['property_is_featured'] ) ? $element['#value']['property_is_featured'] : $element['#field']['widget']['default_value'][0]['property_is_featured'],
     '#attributes'    => array( 'class' => 'property-addons-is-featured' )
   );
