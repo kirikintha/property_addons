@@ -38,6 +38,12 @@ function property_addons_theme() {
     'property_addons_formatter_default' => array(
       'arguments' => array( 'element' => NULL )
     ),
+    'property_addons_formatter_promotional_teaser' => array(
+      'arguments' => array( 'element' => NULL )
+    ),
+    'property_addons_formatter_promotional_details' => array(
+      'arguments' => array( 'element' => NULL )
+    ),
     'property_addons' => array(
       'arguments' => array( 'element' => NULL )
     )
@@ -171,14 +177,21 @@ function property_addons_field_settings( $op, $field ) {
     
     case 'database columns':
       return array(
-        'property_is_on_promotion'         => array( 'type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'sortable' => FALSE, 'views' => FALSE ),
+        'property_is_on_promotion'         => array( 'type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'sortable' => FALSE, 'views' => TRUE ),
         'promotional_teaser'               => array( 'type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'sortable' => FALSE, 'views' => FALSE ),
         'promotional_details'              => array( 'type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'sortable' => FALSE, 'views' => FALSE ),
-        'property_is_for_sale'             => array( 'type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'sortable' => FALSE, 'views' => FALSE ),
+        'property_is_for_sale'             => array( 'type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'sortable' => FALSE, 'views' => TRUE ),
         'property_is_featured'             => array( 'type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'sortable' => FALSE, 'views' => FALSE ),
         'property_is_featured_price_point' => array( 'type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'sortable' => FALSE, 'views' => FALSE )
       );
+      
+    case 'views data':
 
+      $data = content_views_field_views_data($field);
+      $db_info = content_database_info($field);
+      $table_alias = content_views_tablename($field);
+      return $data;
+      
   }
   
 }
@@ -210,6 +223,16 @@ function property_addons_field_formatter_info() {
       'label'           => t('Default'),
       'field types'     => array('property_addons'),
       'multiple values' => CONTENT_HANDLE_CORE
+    ),
+    'promotional_teaser' => array(
+      'label'           => t('Promotional Teaser'),
+      'field types'     => array('property_addons'),
+      'multiple values' => CONTENT_HANDLE_CORE
+    ),
+    'promotional_details' => array(
+      'label'           => t('Promotional Details'),
+      'field types'     => array('property_addons'),
+      'multiple values' => CONTENT_HANDLE_CORE
     )
   );
   
@@ -233,7 +256,7 @@ function theme_property_addons_formatter_default( $element ) {
     
     if ( $element['#item']['property_is_featured'] == 1 ) {
       
-      $pricePoint = explode( "\r\n", $element['#item']['property_is_featured_price_point'] );
+      $pricePoint = implode( "\r\n", $element['#item']['property_is_featured_price_point'] );
       
     }
     
@@ -244,6 +267,38 @@ function theme_property_addons_formatter_default( $element ) {
                  $element['#item']['property_is_for_sale'],
                  $element['#item']['property_is_featured'],
                  $pricePoint );
+    
+  }
+
+}
+
+function theme_property_addons_formatter_promotional_teaser( $element ) {
+  
+  if ( !empty( $element['#item']['property_is_on_promotion'] ) ) { //If we don't have a legitimate addon, then don't do it!
+    
+    return theme( 'property_addons_display',
+                 NULL,
+                 $element['#item']['promotional_teaser'],
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL );
+    
+  }
+
+}
+
+function theme_property_addons_formatter_promotional_details( $element ) {
+  
+  if ( !empty( $element['#item']['property_is_on_promotion'] ) ) { //If we don't have a legitimate addon, then don't do it!
+    
+    return theme( 'property_addons_display',
+                 NULL,
+                 NULL,
+                 $element['#item']['promotional_details'],
+                 NULL,
+                 NULL,
+                 NULL );
     
   }
 
@@ -318,7 +373,8 @@ function property_addons_widget_info() {
     'property_addons' => array(
       'label'           => 'Property Add-On Field',
       'field types'     => array('property_addons'),
-      'multiple values' => CONTENT_HANDLE_CORE
+      'multiple values' => CONTENT_HANDLE_CORE,
+      'callbacks' => array('default value' => CONTENT_CALLBACK_DEFAULT)
     )
   );
   
