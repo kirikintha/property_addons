@@ -13,12 +13,6 @@ function property_addons_init() { //load js calendar listener
   
   drupal_add_js( PROPERTY_ADDONS_MODULE_PATH. '/js/functions.propertyAddons.js','module','header' );
   
-  /**
-  error_reporting(E_ALL);
-  ini_set('display_errors', TRUE);
-  ini_set('display_startup_errors', TRUE);
-  */
-  
 }
 
 /**
@@ -196,7 +190,7 @@ function property_addons_content_is_empty( $item, $field ) {
   
   //krumo( $item );
   
-  if ( empty( $element['#item']['property_is_on_promotion'] ) && empty( $element['#item']['property_is_for_sale'] ) && empty( $element['#item']['property_is_featured'] ) ) {
+  if ( empty( $item['property_is_on_promotion'] ) && empty( $item['property_is_for_sale'] ) && empty( $item['#item']['property_is_featured'] ) ) {
     
     return TRUE;
   
@@ -239,7 +233,7 @@ function theme_property_addons_formatter_default( $element ) {
     
     if ( $element['#item']['property_is_featured'] == 1 ) {
       
-      $pricePoint = explode( $element['#item']['property_is_featured_price_point'] );
+      $pricePoint = explode( "\r\n", $element['#item']['property_is_featured_price_point'] );
       
     }
     

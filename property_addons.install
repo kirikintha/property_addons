@@ -4,10 +4,10 @@
  * @name _property_property_addons_notify()
  * Common function for notifying the content module of this module's existence
  */
-function _property_addons_notify() {
+function _property_addons_notify( $op = 'enable' ) {
   
   drupal_load( 'module', 'content' );
-  content_notify( 'enable', 'property_addons' );
+  content_notify( $op, 'property_addons' );
   
 }
 
@@ -16,7 +16,7 @@ function _property_addons_notify() {
  */
 function property_addons_install() {
   
-  _property_addons_notify();
+  _property_addons_notify( 'install' );
   
   drupal_set_message( t('Property Add Ons Module has installed successfully. Please see README.txt for more information on this module.') );
   
@@ -27,7 +27,7 @@ function property_addons_install() {
  */
 function property_addons_uninstall() {
   
-  _property_addons_notify();
+  _property_addons_notify( 'uninstall' );
   
   drupal_set_message( t('Property Add Ons Module uninstalled successfully. You have not deleted any content, this has to be performed on your own.') );
   
@@ -38,7 +38,7 @@ function property_addons_uninstall() {
  */
 function property_addons_enable() {
   
-  _property_addons_notify();
+  _property_addons_notify( 'enable' );
   
   drupal_set_message( t('Property Add Ons Module has been enabled successfully.') );
   
@@ -49,7 +49,7 @@ function property_addons_enable() {
  */
 function property_addons_disable() {
   
-  _property_addons_notify();
+  _property_addons_notify( 'disable' );
   
   drupal_set_message( t('Property Add Ons Module has been disabled successfully.') );
   
