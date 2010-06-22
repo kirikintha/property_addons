@@ -9,7 +9,7 @@ define( "PROPERTY_ADDONS_MODULE_PATH", drupal_get_path( 'module', 'property_addo
 /**
  * Hook Init
  */
-function property_addons_init() { //load js calendar listener
+function property_addons_load_js() { //load js listeners
   
   drupal_add_js( PROPERTY_ADDONS_MODULE_PATH. '/js/functions.propertyAddons.js','module','header' );
   
@@ -250,7 +250,7 @@ function property_addons_field_formatter_info() {
  *
  */
 function theme_property_addons_formatter_default( $element ) {
-  
+  //krumo($element);
   if ( !empty( $element['#item']['property_is_on_promotion'] ) || !empty( $element['#item']['property_is_for_sale'] ) || !empty( $element['#item']['property_is_featured'] ) ) { //If we don't have a legitimate addon, then don't do it!
     
     return theme( 'property_addons_display',
@@ -428,6 +428,9 @@ function property_addons_widget( &$form, &$form_state, $field, $items, $delta = 
 function property_addons_process( $element, $edit, $form_state, $form ) {
   
   //krumo( $element );
+  
+  //Form JS validation
+  property_addons_load_js();
   
   //Form CSS
   drupal_add_css( PROPERTY_ADDONS_MODULE_PATH . '/css/form.css' );
