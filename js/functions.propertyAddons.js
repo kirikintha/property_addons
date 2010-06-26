@@ -49,6 +49,7 @@ if (Drupal.jsEnabled) {
             if ( confirm( 'Do you wish to remove this property from the promotion? When you save this property, Maya Blue will be notified that you wish to have this property removed from Promotion, and you will not be charged anymore for this add-on.' ) ) {
               
               $(this).attr('checked', false);
+              $('input#edit-field-property-addons-0-property-is-on-promotion-price-point-CHOOSE').attr( 'checked', true );
               
             } else {
               
@@ -90,6 +91,7 @@ if (Drupal.jsEnabled) {
             if ( confirm( 'Do you wish to remove this property from being On Sale? When you save this property, Maya Blue will be notified that you wish to have this property removed from On Sale, and you will not be charged anymore for this add-on.' ) ) {
               
               $(this).attr('checked', false);
+              $('input#edit-field-property-addons-0-property-is-for-sale-price-point-CHOOSE').attr( 'checked', true );
               
             } else {
               
@@ -117,8 +119,6 @@ if (Drupal.jsEnabled) {
             } else {
               
               $(this).attr('checked', false);
-              $('input.property-addons-is-featured-radios').attr( 'checked', false );
-              $('input.property-addons-is-featured-radios:first').attr( 'checked', true );
               
             }
             
@@ -130,11 +130,10 @@ if (Drupal.jsEnabled) {
           
           if ( $(this).is(':checked') == false ) {
             
-            if ( confirm( 'Do you wish to remove this property from being On Sale? When you save this property, Maya Blue will be notified that you wish to have this property removed from On Sale, and you will not be charged anymore for this add-on.' ) ) {
+            if ( confirm( 'Do you wish to remove this property from being Featured? When you save this property, Maya Blue will be notified that you wish to have this property removed from the Featured List, and you will not be charged anymore for this add-on.' ) ) {
               
               $(this).attr('checked', false);
-              $('input.property-addons-is-featured-radios').attr( 'checked', false );
-              $('input.property-addons-is-featured-radios:first').attr( 'checked', true );
+              $('input#edit-field-property-addons-0-property-is-featured-price-point-CHOOSE').attr( 'checked', true );
               
             } else {
               

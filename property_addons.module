@@ -26,12 +26,14 @@ function property_addons_theme() {
       'path'      => PROPERTY_ADDONS_MODULE_PATH,
       'template'  => 'theme/property_addons_display',
 			'arguments' => array(
-        'property_addons_display'=> NULL,
-        'promotional_teaser'=> NULL,
-        'promotional_details'=> NULL,
-        'property_is_for_sale'=> NULL,
-        'property_is_featured'=> NULL,
-        'property_is_featured_price_point'=> NULL
+        'property_is_on_promotion'             => NULL,
+        'property_is_on_promotion_price_point' => NULL,
+        'promotional_teaser'                   => NULL,
+        'promotional_details'                  => NULL,
+        'property_is_for_sale'                  => NULL,
+        'property_is_for_sale_price_point'      => NULL,
+        'property_is_featured'                 => NULL,
+        'property_is_featured_price_point'     => NULL
       )
 		),
     //CCK theme formatters.
@@ -54,6 +56,57 @@ function property_addons_theme() {
 //==========================================//
 // CONTENT FIELD WIDGET (CCK)
 //==========================================//
+
+/**
+ * Hook Field
+ */
+function property_addons_field($op, &$node, $field, &$items, $teaser, $page) {
+  
+  switch ( $op ) {
+    
+    case 'validate':
+      
+      //krumo( $items );
+      //exit();
+      
+      //If we have not checked our price point for Promotion, flag it as an error
+      if ( !empty( $items[0]['property_is_on_promotion'] ) && $items[0]['property_is_on_promotion_price_point'] == 'CHOOSE' ) {
+        
+        form_set_error( $items[0]['_error_element_property_is_on_promotion_price_point'], t( 'You have selected to place this property on Promotion. Please select a price point for your promotion in "Additional Services."' ) );
+        
+      }
+      
+      if ( !empty( $items[0]['property_is_on_promotion'] ) && empty( $items[0]['promotional_teaser'] ) ) {
+        
+        form_set_error( $items[0]['_error_element_promotional_teaser'], t( 'You have selected to place this property on Promotion. Please select enter a promotional teaser for your promotion in "Additional Services."' ) );
+        
+      }
+      
+      if ( !empty( $items[0]['property_is_on_promotion'] ) && empty( $items[0]['promotional_details'] ) ) {
+        
+        form_set_error( $items[0]['_error_element_promotional_details'], t( 'You have selected to place this property on Promotion. Please select enter promotional details for your promotion in "Additional Services."' ) );
+        
+      }
+      
+      //If we have not checked our price point for Featured Property, flag it as an error
+      if ( !empty( $items[0]['property_is_for_sale'] ) && $items[0]['property_is_for_sale_price_point'] == 'CHOOSE' ) {
+        
+        form_set_error( $items[0]['_error_element_property_is_for_sale_price_point'], t( 'You have selected to place this properety On Sale. Please select a price point for your promotion in "Additional Services."' ) );
+        
+      }
+      
+      //If we have not checked our price point for Featured Property, flag it as an error
+      if ( !empty( $items[0]['property_is_featured'] ) && $items[0]['property_is_featured_price_point'] == 'CHOOSE' ) {
+        
+        form_set_error( $items[0]['_error_element_property_is_featured_price_point'], t( 'You have selected to Feature This Property. Please select a price point for your promotion in "Additional Services."' ) );
+        
+      }
+      
+    break;
+    
+  }
+  
+}
 
 /**
  * Implementation of hook_field_info().
@@ -95,12 +148,19 @@ function property_addons_field_settings( $op, $field ) {
         '#prefix' => t( '!msg', array( '!msg' => '<h3>Property Is On Special: Settings and Information</h3>' ) )
       );
       
+      $options = array(
+        '25.00|2 weeks for $25.00',
+        '45.00|3 weeks for $35.00',
+        '45.00|4 weeks for $45.00',
+        '75.00|8 weeks for $75.00 (Best Value)'
+      );
       $form['property_is_on_promotion']['price_point'] = array(
-        '#type'          => 'textfield',
+        '#type'          => 'textarea',
         '#title'         => t( 'Special Offers Price Point' ),
         '#default_value' => isset( $field['property_is_on_promotion']['price_point'] ) ? $field['property_is_on_promotion']['price_point']  : '',
         '#required'      => TRUE,
-        '#description'   => t( 'Please Enter in the Price Point for Special offers, in the form $nn.nn. eg: $25.00' )
+        '#description'   => t( 'Please Enter in the Price Points for Promotions, in the form Key|Information. Please separate Price Points by a new line, and do not use any spaces between characters for the Key. This will show up as a radio buttons for the end-user. Eg: !options If you are unsure how to proceed, please contact the manager of this site.',
+                              array( '!options' => "<br />" .implode( "<br />", $options ) ."<br />" ) )
       );
       
       $form['property_is_on_promotion']['details'] = array(
@@ -113,24 +173,28 @@ function property_addons_field_settings( $op, $field ) {
       );
       
       //On Sale
-      $form['property_is_on_sale'] = array(
+      $form['property_is_for_sale'] = array(
         '#tree' => TRUE,
         '#weight' => -99,
         '#prefix' => t( '!msg', array( '!msg' => '<h3>Property Is For Sale: Settings and Information</h3>' ) )
       );
       
-      $form['property_is_on_sale']['price_point'] = array(
-        '#type'          => 'textfield',
+      $options = array(
+        '25|90 days for $25.00',
+      );
+      $form['property_is_for_sale']['price_point'] = array(
+        '#type'          => 'textarea',
         '#title'         => t( 'For Sale Price Point' ),
-        '#default_value' => isset( $field['property_is_on_promotion']['price_point'] ) ? $field['property_is_on_promotion']['price_point']  : '',
+        '#default_value' => isset( $field['property_is_for_sale']['price_point'] ) ? $field['property_is_for_sale']['price_point']  : '',
         '#required'      => TRUE,
-        '#description'   => t( 'Please Enter in the Price Point for Special offers, in the form $nn.nn. eg: $25.00' )
+        '#description'   => t( 'Please Enter in the Price Point for On Sale Properties, in the form Key|Information. Please separate Price Points by a new line, and do not use any spaces between characters for the Key. This will show up as a radio buttons for the end-user. Eg: !options If you are unsure how to proceed, please contact the manager of this site.',
+                              array( '!options' => "<br />" .implode( "<br />", $options ) ."<br />" ) )
       );
       
-      $form['property_is_on_sale']['details'] = array(
+      $form['property_is_for_sale']['details'] = array(
         '#type'          => 'textarea',
         '#title'         => t( 'For Sale Details' ),
-        '#default_value' => isset( $field['property_is_on_sale']['details'] ) ? $field['property_is_on_sale']['details']  : '',
+        '#default_value' => isset( $field['property_is_for_sale']['details'] ) ? $field['property_is_for_sale']['details']  : '',
         '#required'      => TRUE,
         '#rows'          => 5,
         '#description'   => t( 'Please enter the Details for On Sale Properties, if you need to change this in the future, you can do this here. You may enter HTML into this area to format it.' )
@@ -144,16 +208,16 @@ function property_addons_field_settings( $op, $field ) {
       );
       
       $options = array(
-        '1month|1 month for $25.00',
-        '2months|2 months for $45.00',
-        '3months|3 months for $60.00 (Best Value)'
+        '25.00|1 month for $25.00',
+        '45.00|2 months for $45.00',
+        '60.00|3 months for $60.00 (Best Value)'
       );
       $form['property_is_featured']['price_point'] = array(
         '#type'          => 'textarea',
         '#title'         => t( 'Featured Property Price Point' ),
         '#default_value' => isset( $field['property_is_featured']['price_point'] ) ? $field['property_is_featured']['price_point']  : implode( "\r\n", $options ),
         '#required'      => TRUE,
-        '#description'   => t( 'Please Enter in the Price Point for Special offers, in the form Key|Information. Please separate Price Points by a new line, and do not use any spaces between characters for the Key. This will show up as a select list for the end-user. Eg: !options If you are unsure how to proceed, please contact the manager of this site.',
+        '#description'   => t( 'Please Enter in the Price Point for Special offers, in the form Key|Information. Please separate Price Points by a new line, and do not use any spaces between characters for the Key. This will show up as a radio buttons for the end-user. Eg: !options If you are unsure how to proceed, please contact the manager of this site.',
                               array( '!options' => "<br />" .implode( "<br />", $options ) ."<br />" ) )
       );
       
@@ -171,18 +235,20 @@ function property_addons_field_settings( $op, $field ) {
     case 'save':
       return array(
         'property_is_on_promotion',
-        'property_is_on_sale',
+        'property_is_for_sale',
         'property_is_featured'
       );
     
     case 'database columns':
       return array(
-        'property_is_on_promotion'         => array( 'type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'sortable' => FALSE, 'views' => TRUE ),
-        'promotional_teaser'               => array( 'type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'sortable' => FALSE, 'views' => FALSE ),
-        'promotional_details'              => array( 'type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'sortable' => FALSE, 'views' => FALSE ),
-        'property_is_for_sale'             => array( 'type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'sortable' => FALSE, 'views' => TRUE ),
-        'property_is_featured'             => array( 'type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'sortable' => FALSE, 'views' => FALSE ),
-        'property_is_featured_price_point' => array( 'type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'sortable' => FALSE, 'views' => FALSE )
+        'property_is_on_promotion'             => array( 'type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'sortable' => FALSE, 'views' => TRUE ),
+        'property_is_on_promotion_price_point' => array( 'type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'sortable' => FALSE, 'views' => FALSE ),
+        'promotional_teaser'                   => array( 'type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'sortable' => FALSE, 'views' => FALSE ),
+        'promotional_details'                  => array( 'type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'sortable' => FALSE, 'views' => FALSE ),
+        'property_is_for_sale'                 => array( 'type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'sortable' => FALSE, 'views' => TRUE ),
+        'property_is_for_sale_price_point'     => array( 'type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'sortable' => FALSE, 'views' => TRUE ),
+        'property_is_featured'                 => array( 'type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'sortable' => FALSE, 'views' => FALSE ),
+        'property_is_featured_price_point'     => array( 'type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'sortable' => FALSE, 'views' => FALSE )
       );
       
     case 'views data':
@@ -255,9 +321,11 @@ function theme_property_addons_formatter_default( $element ) {
     
     return theme( 'property_addons_display',
                  $element['#item']['property_is_on_promotion'],
+                 $element['#item']['property_is_on_promotion_price_point'],
                  $element['#item']['promotional_teaser'],
                  $element['#item']['promotional_details'],
                  $element['#item']['property_is_for_sale'],
+                 $element['#item']['property_is_for_sale_price_point'],
                  $element['#item']['property_is_featured'],
                  $element['#item']['property_is_featured_price_point'] );
     
@@ -271,7 +339,9 @@ function theme_property_addons_formatter_promotional_teaser( $element ) {
     
     return theme( 'property_addons_display',
                  NULL,
+                 NULL,
                  $element['#item']['promotional_teaser'],
+                 NULL,
                  NULL,
                  NULL,
                  NULL,
@@ -288,7 +358,10 @@ function theme_property_addons_formatter_promotional_details( $element ) {
     return theme( 'property_addons_display',
                  NULL,
                  NULL,
+                 NULL,
                  $element['#item']['promotional_details'],
+                 NULL,
+                 NULL,
                  NULL,
                  NULL,
                  NULL );
@@ -308,12 +381,14 @@ function theme_property_addons( $element ) {
   $output = '<div class="property_addons-widget">';
   $output .= '<h4>Place Your Property On Special!</h4>';
   $output .= theme( 'checkbox', $element['property_is_on_promotion'] );
+  $output .= theme( 'radios', $element['property_is_on_promotion_price_point'] );
   $output .= theme( 'textfield', $element['promotional_teaser'] );
   $output .= theme( 'textarea', $element['promotional_details'] );
   $output .= t( '!MSG', array( '!MSG' => $element['#field']['property_is_on_promotion']['details'] ) ) ;
   $output .= '<h4>Set Your Property For Sale!</h4>';
   $output .= theme( 'checkbox', $element['property_is_for_sale'] );
-  $output .= t( '!MSG', array( '!MSG' => $element['#field']['property_is_on_sale']['details'] ) ) ;
+  $output .= theme( 'radios', $element['property_is_for_sale_price_point'] );
+  $output .= t( '!MSG', array( '!MSG' => $element['#field']['property_is_for_sale']['details'] ) ) ;
   $output .= '<h4>Feature Your Property On Our Site!</h4>';
   $output .= theme( 'checkbox', $element['property_is_featured'] );
   $output .= theme( 'radios', $element['property_is_featured_price_point'] );
@@ -367,7 +442,9 @@ function property_addons_widget_info() {
       'label'           => 'Property Add-On Field',
       'field types'     => array('property_addons'),
       'multiple values' => CONTENT_HANDLE_CORE,
-      'callbacks' => array('default value' => CONTENT_CALLBACK_DEFAULT)
+      'callbacks'       => array(
+        'default value' => CONTENT_CALLBACK_DEFAULT
+      )
     )
   );
   
@@ -443,6 +520,29 @@ function property_addons_process( $element, $edit, $form_state, $form ) {
     '#attributes'    => array( 'class' => 'property-addons-is-on-promotion' )
   );
   
+  //Get price points from the values entered by the user and turn into a select list
+  $options      = array( 'CHOOSE' => t( 'Choose your Option!' ) );
+  $price_points = explode( "\r\n", $element['#field']['property_is_on_promotion']['price_point'] );
+  foreach ( $price_points as $price_point ) {
+    
+    $arr = explode( "|", $price_point );
+    
+    $key = trim( str_replace( ' ', '', $arr[0] ) );
+    $options[$key] = t( '@value', array( '@value' => trim( $arr[1] ) ) ) ; 
+    
+  }
+  
+  //Get the default value, either the default you set, or the fall back default
+  $default = ( isset($element['#field']['widget']['default_value'][0]['property_is_on_promotion_price_point'] ) ) ? $element['#field']['widget']['default_value'][0]['property_is_on_promotion_price_point'] : 'CHOOSE';
+  
+  $element['property_is_on_promotion_price_point'] = array(
+    '#type'          => 'radios',
+    '#title'         => t('Choose Which Featured Property Option You Would Like To Use'),
+    '#options'       => $options,
+    '#default_value' => isset( $element['#value']['property_is_on_promotion_price_point'] ) ? $element['#value']['property_is_on_promotion_price_point'] : $default,
+    '#attributes'    => array( 'class' => 'property-addons-is-on-promotion-radios' )
+  );
+  
   $element['promotional_teaser'] = array(
     '#type'          => 'textfield',
     '#title'         => t('Promotional Teaser'),
@@ -465,6 +565,29 @@ function property_addons_process( $element, $edit, $form_state, $form ) {
     '#title'         => t('Yes, List This Property As For Sale'),
     '#default_value' => isset( $element['#value']['property_is_for_sale'] ) ? $element['#value']['property_is_for_sale'] : $element['#field']['widget']['default_value'][0]['property_is_for_sale'],
     '#attributes'    => array( 'class' => 'property-addons-is-for-sale' )
+  );
+  
+  //Get price points from the values entered by the user and turn into a select list
+  $options      = array( 'CHOOSE' => t( 'Choose your Option!' ) );
+  $price_points = explode( "\r\n", $element['#field']['property_is_for_sale']['price_point'] );
+  foreach ( $price_points as $price_point ) {
+    
+    $arr = explode( "|", $price_point );
+    
+    $key = trim( str_replace( ' ', '', $arr[0] ) );
+    $options[$key] = t( '@value', array( '@value' => trim( $arr[1] ) ) ) ; 
+    
+  }
+  
+  //Get the default value, either the default you set, or the fall back default
+  $default = ( isset($element['#field']['widget']['default_value'][0]['property_is_for_sale_price_point'] ) ) ? $element['#field']['widget']['default_value'][0]['property_is_for_sale_price_point'] : 'CHOOSE';
+  
+  $element['property_is_for_sale_price_point'] = array(
+    '#type'          => 'radios',
+    '#title'         => t('Choose Which Featured Property Option You Would Like To Use'),
+    '#options'       => $options,
+    '#default_value' => isset( $element['#value']['property_is_for_sale_price_point'] ) ? $element['#value']['property_is_for_sale_price_point'] : $default,
+    '#attributes'    => array( 'class' => 'property-addons-is-on-promotion-radios' )
   );
   
   //Property Is Featured
@@ -496,6 +619,32 @@ function property_addons_process( $element, $edit, $form_state, $form ) {
     '#options'       => $options,
     '#default_value' => isset( $element['#value']['property_is_featured_price_point'] ) ? $element['#value']['property_is_featured_price_point'] : $default,
     '#attributes'    => array( 'class' => 'property-addons-is-featured-radios' )
+  );
+  
+  // Used so that hook_field('validate') knows where to
+  // flag an error in deeply nested forms.
+  if (empty($form['#parents'])) {
+    $form['#parents'] = array();
+  }
+  
+  $element['_error_element_property_is_on_promotion_price_point'] = array(
+    '#type'  => 'value',
+    '#value' => implode( '][', array_merge( $form['#parents'], array( 'property_is_on_promotion_price_point' ) ) )
+  );
+  
+  $element['_error_element_promotional_teaser'] = array(
+    '#type'  => 'value',
+    '#value' => implode( '][', array_merge( $form['#parents'], array( 'promotional_teaser' ) ) )
+  );
+  
+  $element['_error_element_promotional_details'] = array(
+    '#type'  => 'value',
+    '#value' => implode( '][', array_merge( $form['#parents'], array( 'promotional_details' ) ) )
+  );
+  
+  $element['_error_element_property_is_featured_price_point'] = array(
+    '#type'  => 'value',
+    '#value' => implode( '][', array_merge( $form['#parents'], array( 'property_is_featured_price_point' ) ) )
   );
   
   return $element;

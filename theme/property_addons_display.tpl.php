@@ -10,8 +10,11 @@
 ?>
 <div class="property-addons" >
   <?php if ($property_is_on_promotion) : ?>
-  <h4><?php print $property_is_on_promotion; ?></h4>
+  <h4>This property is on Promotion</h4>
   <?php endif; ?>
+  <?php if ($property_is_on_promotion_price_point && $property_is_on_promotion_price_point != 'CHOOSE' ) : ?>
+  <p>$<?php print $property_is_on_promotion_price_point; ?></p>
+	<?php endif; ?>
   <?php if ($promotional_teaser) : ?>
   <p class="promotional-teaser"><?php print $promotional_teaser; ?></p>
   <?php endif; ?>
@@ -19,12 +22,15 @@
   <p class="promotional-details"><?php print $promotional_details; ?></p>
   <?php endif; ?>
   <?php if ($property_is_for_sale) : ?>
-  <h4><?php print $property_is_for_sale; ?></h4>
+  <h4>This Property Is For Sale</h4>
   <?php endif; ?>
+  <?php if ($property_is_for_sale_price_point && $property_is_for_sale_price_point != 'CHOOSE' ) : ?>
+  <p>$<?php print $property_is_for_sale_price_point; ?></p>
+	<?php endif; ?>
   <?php if ($property_is_featured) : ?>
-  <h4><?php print $property_is_featured; ?></h4>
+  <h4>This Property Is Featured</h4>
   <?php endif; ?>
-  <?php if ($property_is_featured_price_point) : ?>
-  <p><?php print $property_is_featured_price_point; ?></p>
+  <?php if ($property_is_featured_price_point && $property_is_featured_price_point != 'CHOOSE' ) : ?>
+  <p>$<?php print $property_is_featured_price_point; ?></p>
 	<?php endif; ?>
 </div>
