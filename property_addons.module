@@ -30,8 +30,8 @@ function property_addons_theme() {
         'property_is_on_promotion_price_point' => NULL,
         'promotional_teaser'                   => NULL,
         'promotional_details'                  => NULL,
-        'property_is_for_sale'                  => NULL,
-        'property_is_for_sale_price_point'      => NULL,
+        'property_is_for_sale'                 => NULL,
+        'property_is_for_sale_price_point'     => NULL,
         'property_is_featured'                 => NULL,
         'property_is_featured_price_point'     => NULL
       )
@@ -44,6 +44,9 @@ function property_addons_theme() {
       'arguments' => array( 'element' => NULL )
     ),
     'property_addons_formatter_promotional_details' => array(
+      'arguments' => array( 'element' => NULL )
+    ),
+    'property_addons_formatter_on_sale' => array(
       'arguments' => array( 'element' => NULL )
     ),
     'property_addons' => array(
@@ -240,21 +243,22 @@ function property_addons_field_settings( $op, $field ) {
       );
     
     case 'database columns':
+      
       return array(
-        'property_is_on_promotion'             => array( 'type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'sortable' => FALSE, 'views' => TRUE ),
+        'property_is_on_promotion'             => array( 'type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'sortable' => TRUE, 'views' => TRUE ),
         'property_is_on_promotion_price_point' => array( 'type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'sortable' => FALSE, 'views' => FALSE ),
         'promotional_teaser'                   => array( 'type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'sortable' => FALSE, 'views' => FALSE ),
         'promotional_details'                  => array( 'type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'sortable' => FALSE, 'views' => FALSE ),
-        'property_is_for_sale'                 => array( 'type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'sortable' => FALSE, 'views' => TRUE ),
+        'property_is_for_sale'                 => array( 'type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'sortable' => TRUE, 'views' => TRUE ),
         'property_is_for_sale_price_point'     => array( 'type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'sortable' => FALSE, 'views' => TRUE ),
-        'property_is_featured'                 => array( 'type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'sortable' => FALSE, 'views' => FALSE ),
+        'property_is_featured'                 => array( 'type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'sortable' => TRUE, 'views' => FALSE ),
         'property_is_featured_price_point'     => array( 'type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'sortable' => FALSE, 'views' => FALSE )
       );
       
     case 'views data':
 
-      $data = content_views_field_views_data($field);
-      $db_info = content_database_info($field);
+      $data        = content_views_field_views_data($field);
+      $db_info     = content_database_info($field);
       $table_alias = content_views_tablename($field);
       return $data;
       
@@ -299,6 +303,11 @@ function property_addons_field_formatter_info() {
       'label'           => t('Promotional Details'),
       'field types'     => array('property_addons'),
       'multiple values' => CONTENT_HANDLE_CORE
+    ),
+    'on_sale' => array(
+      'label'           => t('On Sale (Yes/No)'),
+      'field types'     => array('property_addons'),
+      'multiple values' => CONTENT_HANDLE_CORE
     )
   );
   
@@ -333,6 +342,10 @@ function theme_property_addons_formatter_default( $element ) {
 
 }
 
+/**
+ * Theme for Promotional Teaser
+ * This allows us to only have the promotional teaser only show in a field
+ */
 function theme_property_addons_formatter_promotional_teaser( $element ) {
   
   if ( !empty( $element['#item']['property_is_on_promotion'] ) ) { //If we don't have a legitimate addon, then don't do it!
@@ -351,6 +364,10 @@ function theme_property_addons_formatter_promotional_teaser( $element ) {
 
 }
 
+/**
+ * Theme Promotional Details
+ * This allows us to only show the promotional details
+ */
 function theme_property_addons_formatter_promotional_details( $element ) {
   
   if ( !empty( $element['#item']['property_is_on_promotion'] ) ) { //If we don't have a legitimate addon, then don't do it!
@@ -368,6 +385,21 @@ function theme_property_addons_formatter_promotional_details( $element ) {
     
   }
 
+}
+
+/**
+ * property_addons_formatter_on_sale
+ * Theme On Sale Table Layout
+ * On Comparison Charts, we need a Yes/No Field for the table, so this will format the correct reponse for you
+ */
+function theme_property_addons_formatter_on_sale ( $element ) {
+  
+  //krumo( $element['#node']['node_data_field_property_bedrooms_field_property_addons_property_is_for_sale'] );
+  
+  $data = ( is_null( $element['#node']->node_data_field_property_bedrooms_field_property_addons_property_is_for_sale ) ) ? t( 'No' ) : t( 'Yes' ) ;
+  
+  return $data;
+  
 }
 
 /**
@@ -517,7 +549,12 @@ function property_addons_process( $element, $edit, $form_state, $form ) {
     '#type'          => 'checkbox',
     '#title'         => t('Yes, Place This Property On A Promotion.'),
     '#default_value' => isset( $element['#value']['property_is_on_promotion'] ) ? $element['#value']['property_is_on_promotion'] : $element['#field']['widget']['default_value'][0]['property_is_on_promotion'],
-    '#attributes'    => array( 'class' => 'property-addons-is-on-promotion' )
+    '#attributes'    => array( 'class' => 'property-addons-is-on-promotion' ),
+    '#required'      => FALSE, //This is hard coded, because the module handles the validation on it's own
+    '#field_name'    => $element['#field_name']['property_is_on_promotion'],
+    '#type_name'     => $element['#type_name']['property_is_on_promotion'],
+    '#delta'         => $element['#delta']['property_is_on_promotion'],
+    '#columns'       => $element['#columns']['property_is_on_promotion']
   );
   
   //Get price points from the values entered by the user and turn into a select list
@@ -540,7 +577,12 @@ function property_addons_process( $element, $edit, $form_state, $form ) {
     '#title'         => t('Choose Which Featured Property Option You Would Like To Use'),
     '#options'       => $options,
     '#default_value' => isset( $element['#value']['property_is_on_promotion_price_point'] ) ? $element['#value']['property_is_on_promotion_price_point'] : $default,
-    '#attributes'    => array( 'class' => 'property-addons-is-on-promotion-radios' )
+    '#attributes'    => array( 'class' => 'property-addons-is-on-promotion-radios' ),
+    '#required'      => FALSE, //This is hard coded, because the module handles the validation on it's own
+    '#field_name'    => $element['#field_name']['property_is_on_promotion_price_point'],
+    '#type_name'     => $element['#type_name']['property_is_on_promotion_price_point'],
+    '#delta'         => $element['#delta']['property_is_on_promotion_price_point'],
+    '#columns'       => $element['#columns']['property_is_on_promotion_price_point']
   );
   
   $element['promotional_teaser'] = array(
@@ -548,7 +590,12 @@ function property_addons_process( $element, $edit, $form_state, $form ) {
     '#title'         => t('Promotional Teaser'),
     '#description'   => t('Please enter the Promotional Teaser for this property.'),
     '#default_value' => isset( $element['#value']['promotional_teaser'] ) ? $element['#value']['promotional_teaser'] : $element['#field']['widget']['default_value'][0]['promotional_teaser'],
-    '#attributes'    => array( 'class' => 'property-addons-promotional-teaser' )
+    '#attributes'    => array( 'class' => 'property-addons-promotional-teaser' ),
+    '#required'      => FALSE, //This is hard coded, because the module handles the validation on it's own
+    '#field_name'    => $element['#field_name']['promotional_teaser'],
+    '#type_name'     => $element['#type_name']['promotional_teaser'],
+    '#delta'         => $element['#delta']['promotional_teaser'],
+    '#columns'       => $element['#columns']['promotional_teaser']
   );
   
   $element['promotional_details'] = array(
@@ -556,7 +603,12 @@ function property_addons_process( $element, $edit, $form_state, $form ) {
     '#title'         => t('Promotional Details'),
     '#description'   => t('Please enter the Promotional Teaser for this property.'),
     '#default_value' => isset( $element['#value']['promotional_details'] ) ? $element['#value']['promotional_details'] : $element['#field']['widget']['default_value'][0]['promotional_details'],
-    '#attributes'    => array( 'class' => 'property-addons-promotional-details' )
+    '#attributes'    => array( 'class' => 'property-addons-promotional-details' ),
+    '#required'      => FALSE, //This is hard coded, because the module handles the validation on it's own
+    '#field_name'    => $element['#field_name']['promotional_details'],
+    '#type_name'     => $element['#type_name']['promotional_details'],
+    '#delta'         => $element['#delta']['promotional_details'],
+    '#columns'       => $element['#columns']['promotional_details']
   );
   
   //Property Is For Sale
@@ -564,7 +616,12 @@ function property_addons_process( $element, $edit, $form_state, $form ) {
     '#type'          => 'checkbox',
     '#title'         => t('Yes, List This Property As For Sale'),
     '#default_value' => isset( $element['#value']['property_is_for_sale'] ) ? $element['#value']['property_is_for_sale'] : $element['#field']['widget']['default_value'][0]['property_is_for_sale'],
-    '#attributes'    => array( 'class' => 'property-addons-is-for-sale' )
+    '#attributes'    => array( 'class' => 'property-addons-is-for-sale' ),
+    '#required'      => FALSE, //This is hard coded, because the module handles the validation on it's own
+    '#field_name'    => $element['#field_name']['property_is_for_sale'],
+    '#type_name'     => $element['#type_name']['property_is_for_sale'],
+    '#delta'         => $element['#delta']['property_is_for_sale'],
+    '#columns'       => $element['#columns']['property_is_for_sale']
   );
   
   //Get price points from the values entered by the user and turn into a select list
@@ -587,7 +644,12 @@ function property_addons_process( $element, $edit, $form_state, $form ) {
     '#title'         => t('Choose Which Featured Property Option You Would Like To Use'),
     '#options'       => $options,
     '#default_value' => isset( $element['#value']['property_is_for_sale_price_point'] ) ? $element['#value']['property_is_for_sale_price_point'] : $default,
-    '#attributes'    => array( 'class' => 'property-addons-is-on-promotion-radios' )
+    '#attributes'    => array( 'class' => 'property-addons-is-on-promotion-radios' ),
+    '#required'      => FALSE, //This is hard coded, because the module handles the validation on it's own
+    '#field_name'    => $element['#field_name']['property_is_for_sale_price_point'],
+    '#type_name'     => $element['#type_name']['property_is_for_sale_price_point'],
+    '#delta'         => $element['#delta']['property_is_for_sale_price_point'],
+    '#columns'       => $element['#columns']['property_is_for_sale_price_point']
   );
   
   //Property Is Featured
@@ -595,7 +657,12 @@ function property_addons_process( $element, $edit, $form_state, $form ) {
     '#type'          => 'checkbox',
     '#title'         => t('Feature This Property On !site_name!', array( '!site_name' => ucwords( variable_get( 'site_name', NULL ) ) ) ),
     '#default_value' => isset( $element['#value']['property_is_featured'] ) ? $element['#value']['property_is_featured'] : $element['#field']['widget']['default_value'][0]['property_is_featured'],
-    '#attributes'    => array( 'class' => 'property-addons-is-featured' )
+    '#attributes'    => array( 'class' => 'property-addons-is-featured' ),
+    '#required'      => FALSE, //This is hard coded, because the module handles the validation on it's own
+    '#field_name'    => $element['#field_name']['property_is_featured'],
+    '#type_name'     => $element['#type_name']['property_is_featured'],
+    '#delta'         => $element['#delta']['property_is_featured'],
+    '#columns'       => $element['#columns']['property_is_featured']
   );
   
   //Get price points from the values entered by the user and turn into a select list
@@ -618,7 +685,12 @@ function property_addons_process( $element, $edit, $form_state, $form ) {
     '#title'         => t('Choose Which Featured Property Option You Would Like To Use'),
     '#options'       => $options,
     '#default_value' => isset( $element['#value']['property_is_featured_price_point'] ) ? $element['#value']['property_is_featured_price_point'] : $default,
-    '#attributes'    => array( 'class' => 'property-addons-is-featured-radios' )
+    '#attributes'    => array( 'class' => 'property-addons-is-featured-radios' ),
+    '#required'      => FALSE, //This is hard coded, because the module handles the validation on it's own
+    '#field_name'    => $element['#field_name']['property_is_featured_price_point'],
+    '#type_name'     => $element['#type_name']['property_is_featured_price_point'],
+    '#delta'         => $element['#delta']['property_is_featured_price_point'],
+    '#columns'       => $element['#columns']['property_is_featured_price_point']
   );
   
   // Used so that hook_field('validate') knows where to
