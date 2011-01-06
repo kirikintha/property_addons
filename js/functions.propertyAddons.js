@@ -10,7 +10,6 @@ if (Drupal.jsEnabled) {
     
     $(document).bind( 'ajaxComplete', function() { //This resets the elements if CCK add another is used. This is compatible for jQuery 1.2.6 +
       
-      //Drupal.trace( 'Ajax Complete' );
       _rebindElements();
       
     } );
@@ -22,15 +21,17 @@ if (Drupal.jsEnabled) {
       var propertyIsAlreadyFeatured    = $('input.property-addons-is-featured').is(':checked');
       
       //Promotions/Specials
-      $('input.property-addons-is-on-promotion').bind( 'change', function() { //This adds an alert confirmation for adding a promotion
+      $('input#edit-field-property-addons-0-property-is-on-promotion').bind( 'change', function() { //This adds an alert confirmation for adding a promotion
         
-        if ( propertyIsAlreadyOnPromotion == false ) { //If this property is not on promotion, and they are setting it to true, then we need the confirmation
+        if ( propertyIsAlreadyOnPromotion === false ) { //If this property is not on promotion, and they are setting it to true, then we need the confirmation
           
           if ( $(this).is(':checked') == true ) {
             
             if ( confirm( 'Do you wish to set this property as a promotion? You will receive an invoice for this transaction.' ) ) {
               
               $(this).attr('checked', true);
+              var inputs = $("input[name='field_property_addons[0][property_is_on_promotion_price_point]']");
+              inputs.each( function(e) { if ( e == 1 ) { $(this).attr('checked', true); } });
               
             } else {
               
@@ -42,7 +43,7 @@ if (Drupal.jsEnabled) {
           
         }
         
-        if ( propertyIsAlreadyOnPromotion == true ) { //If they have already placed this on promotion, and are changing to off, then flag the message
+        if ( propertyIsAlreadyOnPromotion === true ) { //If they have already placed this on promotion, and are changing to off, then flag the message
           
           if ( $(this).is(':checked') == false ) {
             
@@ -60,19 +61,28 @@ if (Drupal.jsEnabled) {
           }
           
         }
+        
+        //If they uncheck, reset the radio buttons no matter what
+        if ( $(this).is(':checked') == false ) {
+          $('input#edit-field-property-addons-0-property-is-on-promotion-price-point-CHOOSE').attr( 'checked', true );
+        }
+        
+        return false;
       
       } );
       
       //For Sale
-      $('input.property-addons-is-for-sale').bind( 'change', function() { //This adds an alert confirmation for adding an item for sale
+      $('input#edit-field-property-addons-0-property-is-for-sale').bind( 'change', function() { //This adds an alert confirmation for adding an item for sale
         
-        if ( propertyIsAlreadyOnSale == false ) { //If this property is not on sale, and they are setting it to true, then we need the confirmation
+        if ( propertyIsAlreadyOnSale === false ) { //If this property is not on sale, and they are setting it to true, then we need the confirmation
           
           if ( $(this).is(':checked') == true ) {
             
-            if ( confirm( 'Do you wish to set this property as a promotion? You will receive an invoice for this transaction.' ) ) {
+            if ( confirm( 'Do you wish to set this property as On Sale? You will receive an invoice for this transaction.' ) ) {
               
               $(this).attr('checked', true);
+              var inputs = $("input[name='field_property_addons[0][property_is_for_sale_price_point]']");
+              inputs.each( function(e) { if ( e == 1 ) { $(this).attr('checked', true); } });
               
             } else {
               
@@ -84,7 +94,7 @@ if (Drupal.jsEnabled) {
           
         }
         
-        if ( propertyIsAlreadyOnSale == true ) { //If they have already placed this on sale, and are changing to off, then flag the message
+        if ( propertyIsAlreadyOnSale === true ) { //If they have already placed this on sale, and are changing to off, then flag the message
           
           if ( $(this).is(':checked') == false ) {
             
@@ -102,19 +112,29 @@ if (Drupal.jsEnabled) {
           }
           
         }
+        
+        //If they uncheck, reset the radio buttons no matter what
+        if ( $(this).is(':checked') == false ) {
+          $('input#edit-field-property-addons-0-property-is-for-sale-price-point-CHOOSE').attr( 'checked', true );
+        }
+        
+        return false;
       
       } );
       
       //Featured Property
-      $('input.property-addons-is-featured').bind( 'change', function() { //This adds an alert confirmation for adding an item featured
+      $('input#edit-field-property-addons-0-property-is-featured').bind( 'change', function() { //This adds an alert confirmation for adding an item featured
         
-        if ( propertyIsAlreadyFeatured == false ) { //If this property is not featured, and they are setting it to true, then we need the confirmation
+        if ( propertyIsAlreadyFeatured === false ) { //If this property is not featured, and they are setting it to true, then we need the confirmation
           
           if ( $(this).is(':checked') == true ) {
             
             if ( confirm( 'Do you wish to set this property as a featured property? You will receive an invoice for this transaction.' ) ) {
               
               $(this).attr('checked', true);
+              var inputs = $("input[name='field_property_addons[0][property_is_featured_price_point]']");
+              inputs.attr( 'checked', true );
+              inputs.each( function(e) { if ( e == 1 ) { $(this).attr('checked', true); } });
               
             } else {
               
@@ -123,10 +143,10 @@ if (Drupal.jsEnabled) {
             }
             
           }
-          
+
         }
         
-        if ( propertyIsAlreadyFeatured == true ) { //If they have already placed this as featured, and are changing to off, then flag the message
+        if ( propertyIsAlreadyFeatured === true ) { //If they have already placed this as featured, and are changing to off, then flag the message
           
           if ( $(this).is(':checked') == false ) {
             
@@ -144,6 +164,13 @@ if (Drupal.jsEnabled) {
           }
           
         }
+        
+        //If they uncheck, reset the radio buttons no matter what
+        if ( $(this).is(':checked') == false ) {
+          $('input#edit-field-property-addons-0-property-is-featured-price-point-CHOOSE').attr( 'checked', true );
+        }
+        
+        return false;
       
       } );
     

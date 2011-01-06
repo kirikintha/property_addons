@@ -394,9 +394,9 @@ function theme_property_addons_formatter_promotional_details( $element ) {
  */
 function theme_property_addons_formatter_on_sale ( $element ) {
   
-  //krumo( $element['#node']['node_data_field_property_bedrooms_field_property_addons_property_is_for_sale'] );
+  //krumo( $element['#node']->node_data_field_property_addons_field_property_addons_property_is_for_sale );
   
-  $data = ( is_null( $element['#node']->node_data_field_property_bedrooms_field_property_addons_property_is_for_sale ) ) ? t( 'No' ) : t( 'Yes' ) ;
+  $data = ( is_null( $element['#node']->node_data_field_property_addons_field_property_addons_property_is_for_sale ) ) ? '<div class="confirm-no">No</div>' : '<div class="confirm-yes">Yes</div>'  ;
   
   return $data;
   
